@@ -1,5 +1,7 @@
+using System.IO;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// Controls Heatmap controller GUI in Editor window
@@ -10,6 +12,8 @@ public class Heatmap_UI : Editor
     private HeatmapController heatmapController;
 
     private SerializedObject serializedGradient;
+
+    string fileName;
 
     public override void OnInspectorGUI()
     {
@@ -43,9 +47,7 @@ public class Heatmap_UI : Editor
         if (GUILayout.Button(new GUIContent("Load events from file")))
         {
             if (Application.isPlaying)
-            {
                 heatmapController.LoadEvents();
-            }
         }
     }
 
@@ -55,9 +57,7 @@ public class Heatmap_UI : Editor
         if (GUILayout.Button(new GUIContent("Reset heatmap values", "Resets heatmap color values to default values")))
         {
             if (Application.isPlaying)
-            {
                 heatmapController.ResetHeatmap();
-            }
         }
     }
 
@@ -67,9 +67,7 @@ public class Heatmap_UI : Editor
         if (GUILayout.Button(new GUIContent("Initialize particle system", "Initializes particle system and prepares particle array")))
         {
             if (Application.isPlaying)
-            {
                 heatmapController.InitializeParticleSystem();
-            }
         }
     }
 
@@ -79,9 +77,7 @@ public class Heatmap_UI : Editor
         if (GUILayout.Button(new GUIContent("Generate heatmap", "Calculates color of particles in particle system using data from selected events")))
         {
             if (Application.isPlaying)
-            {
                 heatmapController.AddSelectedEventsToHeatmap();
-            }
         }
     }
 
@@ -93,9 +89,7 @@ public class Heatmap_UI : Editor
         if (heatmapController.events != null)
         {
             foreach (EventData eventData in heatmapController.events)
-            {
                 eventData.m_isVisible = EditorGUILayout.Toggle(eventData.m_eventName, eventData.m_isVisible);
-            }
         }
     }
 
@@ -115,16 +109,24 @@ public class Heatmap_UI : Editor
     private void AddAdvancedSettings()
     {
         GUILayout.Label("\nAdvanced Settings", EditorStyles.boldLabel);
-        heatmapController.settings.colorCutoff = EditorGUILayout.Slider(new GUIContent("Color Cutoff", "Hides all particles with smaller color value (With 0 value cutout is deactivated)"), heatmapController.settings.colorCutoff, 0F, 1.01F);
+        heatmapController.settings.colorCutoff = EditorGUILayout.Slider(new GUIContent("Color Cutoff", "Hides all particles with smaller color value (deactivated if set to 0)"), heatmapController.settings.colorCutoff, 0F, 1.01F);
         heatmapController.settings.heightInParticles = EditorGUILayout.IntSlider(new GUIContent("Particle System Height", "(With 0 value height is calculated depending on collider height)"), heatmapController.settings.heightInParticles, 0, 50);
         heatmapController.settings.ignoreYforColoring = EditorGUILayout.Toggle(new GUIContent("Ignore Height (2D)", "(If true color will be calculated only depending on X and Z axes)"), heatmapController.settings.ignoreYforColoring);
 
         GUILayout.Label("\nPaths", EditorStyles.boldLabel);
         GUILayout.Label("Event Data File Path");
-        heatmapController.settings.pathForReadingData = GUILayout.TextField(heatmapController.settings.pathForReadingData);
+
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Select File"))
+            heatmapController.settings.pathForReadingData = EditorUtility.OpenFilePanel("Select a text file", Application.dataPath, "txt");
+
+        if (!string.IsNullOrEmpty(heatmapController.settings.pathForReadingData))
+            fileName = Path.GetFileName(heatmapController.settings.pathForReadingData);
+
+        EditorGUILayout.LabelField(fileName, GUILayout.ExpandWidth(true));
+        EditorGUILayout.EndHorizontal();
 
         GUILayout.Label("\nParticle Material", EditorStyles.boldLabel);
-        GUILayout.Label("Use material, that is used in example prefab for heatmap. \n(or be creative if you know what you are doing)");
         heatmapController.settings.particleMaterial = (Material)EditorGUILayout.ObjectField(heatmapController.settings.particleMaterial, typeof(Material), true);
     }
 }
