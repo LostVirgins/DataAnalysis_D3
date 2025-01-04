@@ -1,0 +1,18 @@
+// HeatmapCompute.shader
+#pragma kernel CSMain
+
+RWTexture3D<float4> Result;  // Define a 3D texture as RWTexture3D
+
+[numthreads(8, 8, 8)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    // Normalize texture coordinates
+    float3 texCoord = float3(id.x, id.y, id.z) / 256.0;  // Assuming texture size is 256
+
+    // Compute intensity (simple distance-based logic for demonstration)
+    float distance = length(texCoord - float3(0.5, 0.5, 0.5));  // Adjust based on your points
+    float intensity = 1.0 / (1.0 + distance * 10.0); // Simple intensity based on distance
+
+    // Assign the calculated intensity as a color to the texture (heatmap effect)
+    Result[id] = float4(intensity, 0.0, 0.0, 1.0); // Red channel for heatmap effect
+}
