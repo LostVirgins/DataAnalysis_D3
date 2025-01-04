@@ -26,6 +26,31 @@ public class Server : MonoBehaviour, IMessageReceiver
         PATH
     }
 
+    IEventWriter eventWriter;
+    float time = 0;
+
+    void Start()
+    {
+        eventWriter = new JsonEventWriter(@"C:\Users\Hekbas\CITM\4A\Data_Analysis\DataAnalysis_D3\DataAnalysis_D3\Assets\Heatmap\ParticleSystem\game_data.txt", true);
+    }
+
+    void Update()
+    {
+        time += Time.deltaTime;
+
+        if (time > 0.2)
+        {
+            time = 0;
+
+            if (eventWriter.IsWriterAvailable())
+            {
+                HeatmapEvent hmEvent = new HeatmapEvent("m_position", playerDamageableScript.transform.position); 
+                eventWriter.SaveEvent(hmEvent);
+                //Debug.Log("Added position: " + playerDamageableScript.transform.position);
+            }
+        }
+    }
+
     void OnEnable()
     {
         playerDamageableScript.onDamageMessageReceivers.Add(this);
