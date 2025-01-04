@@ -42,6 +42,8 @@ public class HeatmapController : MonoBehaviour
     /// </summary>
     public void LoadEvents()
     {
+        StartCoroutine(AccessServerData.Instance.RetrieveData(Server.FormType.PATH));
+
         Stopwatch stopwatch = new();
         stopwatch.Start();
 

@@ -12,7 +12,6 @@ public class JsonEventWriter : IEventWriter
     public JsonEventWriter(string path, bool createFileIfNonFound)
     {
         this.path = path;
-
         this.createFileIfNonFound = createFileIfNonFound;
         hasFileToWrite = Startup();
     }
@@ -24,23 +23,18 @@ public class JsonEventWriter : IEventWriter
 
     bool IEventWriter.SaveEvent(HeatmapEvent baseEvent)
     {
-        if (!hasFileToWrite || !File.Exists(path))
-        {
-            return false;
-        }
+        if (!hasFileToWrite || !File.Exists(path)) return false;
 
         StreamWriter writer = new StreamWriter(path, true);
 
         try
         {
             writer.WriteLine(ComposeJsonString(baseEvent));
-
             return true;
         }
         catch (System.Exception e)
         {
             Debug.Log(e.ToString());
-
             return false;
         }
         finally
@@ -51,26 +45,20 @@ public class JsonEventWriter : IEventWriter
 
     bool IEventWriter.SaveEvents(List<HeatmapEvent> baseEvents)
     {
-        if (!hasFileToWrite || !File.Exists(path))
-        {
-            return false;
-        }
+        if (!hasFileToWrite || !File.Exists(path)) return false;
 
         StreamWriter writer = new StreamWriter(path, true);
 
         try
         {
             foreach (HeatmapEvent baseEvent in baseEvents)
-            {
-                writer.Write(ComposeJsonString(baseEvent));
-            }
+                writer.WriteLine(ComposeJsonString(baseEvent));
 
             return true;
         }
         catch (System.Exception e)
         {
             Debug.Log(e.ToString());
-
             return false;
         }
         finally
@@ -86,13 +74,11 @@ public class JsonEventWriter : IEventWriter
         try
         {
             File.Create(path);
-
             return true;
         }
         catch (System.Exception e)
         {
             Debug.Log(e.ToString());
-
             return false;
         }
     }
@@ -105,7 +91,6 @@ public class JsonEventWriter : IEventWriter
     private bool Startup()
     {
         if (File.Exists(path)) return true;
-
         if (!createFileIfNonFound) return false;
 
         return CreateFile(path);

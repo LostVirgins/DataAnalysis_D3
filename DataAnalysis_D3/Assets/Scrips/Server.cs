@@ -20,10 +20,10 @@ public class Server : MonoBehaviour, IMessageReceiver
 
     public enum FormType
     {
+        PATH,
+        ATTACK,
         DAMAGED,
-        DEAD,
-        HIT,
-        PATH
+        DEATH,
     }
 
     IEventWriter eventWriter;
@@ -31,58 +31,46 @@ public class Server : MonoBehaviour, IMessageReceiver
 
     void Start()
     {
-        eventWriter = new JsonEventWriter(@"C:\Users\Hekbas\CITM\4A\Data_Analysis\DataAnalysis_D3\DataAnalysis_D3\Assets\Heatmap\ParticleSystem\game_data.txt", true);
+        eventWriter = new JsonEventWriter(@"C:\Users\Hekbas\CITM\4A\Data_Analysis\DataAnalysis_D3\DataAnalysis_D3\Assets\Heatmap\ParticleSystem\game_live.txt", true);
+        StartCoroutine(GetPathData());
     }
 
-    void Update()
-    {
-        time += Time.deltaTime;
+    //void Update()
+    //{
+    //    time += Time.deltaTime;
 
-        if (time > 0.2)
-        {
-            time = 0;
+    //    if (time > 0.2)
+    //    {
+    //        time = 0;
 
-            if (eventWriter.IsWriterAvailable())
-            {
-                HeatmapEvent hmEvent = new HeatmapEvent("m_position", playerDamageableScript.transform.position); 
-                eventWriter.SaveEvent(hmEvent);
-                //Debug.Log("Added position: " + playerDamageableScript.transform.position);
-            }
-        }
-    }
+    //        if (eventWriter.IsWriterAvailable())
+    //        {
+    //            HeatmapEvent hmEvent = new HeatmapEvent("m_position", playerDamageableScript.transform.position); 
+    //            eventWriter.SaveEvent(hmEvent);
+    //            //Debug.Log("Added position: " + playerDamageableScript.transform.position);
+    //        }
+    //    }
+    //}
 
     void OnEnable()
     {
         playerDamageableScript.onDamageMessageReceivers.Add(this);
 
         foreach (var script in enemyDamageableScript)
-        {
             script.onDamageMessageReceivers.Add(this);
-        }
 
         foreach (var script in boxDamageableScript)
-        {
             script.onDamageMessageReceivers.Add(this);
-        }
     }
     void OnDisable()
     {
         playerDamageableScript.onDamageMessageReceivers.Remove(this);
 
         foreach (var script in enemyDamageableScript)
-        {
             script.onDamageMessageReceivers.Remove(this);
-        }
 
         foreach (var script in boxDamageableScript)
-        {
             script.onDamageMessageReceivers.Remove(this);
-        }
-    }
-
-    void Start()
-    {
-        StartCoroutine(GetPathData());
     }
 
     public void OnReceiveMessage(Gamekit3D.Message.MessageType type, object sender, object msg)
@@ -104,6 +92,7 @@ public class Server : MonoBehaviour, IMessageReceiver
                     OnHitReceived(senderObj.transform.position);
                 }
                 break;
+
             case Gamekit3D.Message.MessageType.DEAD:
                 if (senderObj.name == "Ellen")
                 {
@@ -116,8 +105,8 @@ public class Server : MonoBehaviour, IMessageReceiver
                     OnHitReceived(senderObj.transform.position);
                 }
                 break;
-            default:
-                break;
+
+            default: break;
         }
     }
 
@@ -130,6 +119,7 @@ public class Server : MonoBehaviour, IMessageReceiver
 
         StartCoroutine(Upload(form, FormType.DAMAGED)); 
     }
+
     private void OnDeadReceived(Vector3 pos)
     {
         WWWForm form = new WWWForm();
@@ -137,8 +127,9 @@ public class Server : MonoBehaviour, IMessageReceiver
         form.AddField("position_Y", pos.y.ToString().Replace(",", "."));
         form.AddField("position_Z", pos.z.ToString().Replace(",", "."));
 
-        StartCoroutine(Upload(form, FormType.DEAD));
+        StartCoroutine(Upload(form, FormType.DEATH));
     }
+
     private void OnHitReceived(Vector3 pos)
     {
         WWWForm form = new WWWForm();
@@ -146,8 +137,9 @@ public class Server : MonoBehaviour, IMessageReceiver
         form.AddField("position_Y", pos.y.ToString().Replace(",", "."));
         form.AddField("position_Z", pos.z.ToString().Replace(",", "."));
 
-        StartCoroutine(Upload(form, FormType.HIT));
+        StartCoroutine(Upload(form, FormType.ATTACK));
     }
+
     IEnumerator GetPathData()
     {
         Vector3 playerPos = playerDamageableScript.gameObject.transform.position;
@@ -159,7 +151,15 @@ public class Server : MonoBehaviour, IMessageReceiver
         
         StartCoroutine(Upload(form, FormType.PATH));
 
-        yield return new WaitForSeconds(1);
+        // test
+        if (eventWriter.IsWriterAvailable())
+        {
+            HeatmapEvent hmEvent = new HeatmapEvent("Position", playerPos);
+            eventWriter.SaveEvent(hmEvent);
+        }
+        // test
+
+        yield return new WaitForSeconds(0.2f);
 
         StartCoroutine(GetPathData());
     }
@@ -169,20 +169,20 @@ public class Server : MonoBehaviour, IMessageReceiver
         UnityWebRequest www = null;
         switch (type)
         {
+            case FormType.PATH:
+                www = UnityWebRequest.Post("https://citmalumnes.upc.es/~jannl/PathData.php", form);
+                break;
+
+            case FormType.ATTACK:
+                www = UnityWebRequest.Post("https://citmalumnes.upc.es/~jannl/HitData.php", form);
+                break;
+
             case FormType.DAMAGED:
                 www = UnityWebRequest.Post("https://citmalumnes.upc.es/~jannl/DamageData.php", form);                
                     break;
 
-            case FormType.DEAD:
+            case FormType.DEATH:
                 www = UnityWebRequest.Post("https://citmalumnes.upc.es/~jannl/DeadData.php", form);                
-                break;
-
-            case FormType.HIT:
-                www = UnityWebRequest.Post("https://citmalumnes.upc.es/~jannl/HitData.php", form);
-                break;
-            
-            case FormType.PATH:
-                www = UnityWebRequest.Post("https://citmalumnes.upc.es/~jannl/PathData.php", form);
                 break;
 
             default:
