@@ -110,6 +110,17 @@ namespace Gamekit3D
             }
         }
 
+        public void ApplyDeath(DamageMessage data)
+        {
+            var messageType = MessageType.DEAD;
+
+            for (var i = 0; i < onDamageMessageReceivers.Count; ++i)
+            {
+                var receiver = onDamageMessageReceivers[i] as IMessageReceiver;
+                receiver.OnReceiveMessage(messageType, this, data);
+            }
+        }
+
         void LateUpdate()
         {
             if (schedule != null)

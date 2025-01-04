@@ -12,10 +12,11 @@ namespace Gamekit3D
 
         void OnTriggerEnter(Collider other)
         {
-            var pc = other.GetComponent<PlayerController>();
-            if (pc != null)
+            var d = other.GetComponent<Damageable>();
+            if (d != null && !d.isInvulnerable)
             {
-                pc.Die(new Damageable.DamageMessage());
+                d.ApplyDeath(new Damageable.DamageMessage());
+                d.isInvulnerable = true;
             }
             if (audio != null)
             {
