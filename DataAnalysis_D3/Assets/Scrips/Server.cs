@@ -54,6 +54,12 @@ public class Server : MonoBehaviour, IMessageReceiver
             script.onDamageMessageReceivers.Remove(this);
         }
     }
+
+    void Start()
+    {
+        StartCoroutine(GetPathData());
+    }
+
     public void OnReceiveMessage(Gamekit3D.Message.MessageType type, object sender, object msg)
     {
         //GameObject senderObj = sender as GameObject;
@@ -99,7 +105,6 @@ public class Server : MonoBehaviour, IMessageReceiver
 
         StartCoroutine(Upload(form, FormType.DAMAGED)); 
     }
-
     private void OnDeadReceived(Vector3 pos)
     {
         WWWForm form = new WWWForm();
@@ -109,7 +114,6 @@ public class Server : MonoBehaviour, IMessageReceiver
 
         StartCoroutine(Upload(form, FormType.DEAD));
     }
-
     private void OnHitReceived(Vector3 pos)
     {
         WWWForm form = new WWWForm();
@@ -119,8 +123,23 @@ public class Server : MonoBehaviour, IMessageReceiver
 
         StartCoroutine(Upload(form, FormType.HIT));
     }
+    IEnumerator GetPathData()
+    {
+        Vector3 playerPos = playerDamageableScript.gameObject.transform.position;
 
-    IEnumerator Upload(WWWForm form, FormType type)//, Action<uint> callback)
+        WWWForm form = new WWWForm();
+        form.AddField("position_X", playerPos.x.ToString().Replace(",", "."));
+        form.AddField("position_Y", playerPos.y.ToString().Replace(",", "."));
+        form.AddField("position_Z", playerPos.z.ToString().Replace(",", "."));
+        
+        StartCoroutine(Upload(form, FormType.PATH));
+
+        yield return new WaitForSeconds(1);
+
+        StartCoroutine(GetPathData());
+    }
+
+    IEnumerator Upload(WWWForm form, FormType type)
     {
         UnityWebRequest www = null;
         switch (type)
@@ -135,6 +154,10 @@ public class Server : MonoBehaviour, IMessageReceiver
 
             case FormType.HIT:
                 www = UnityWebRequest.Post("https://citmalumnes.upc.es/~jannl/HitData.php", form);
+                break;
+            
+            case FormType.PATH:
+                www = UnityWebRequest.Post("https://citmalumnes.upc.es/~jannl/PathData.php", form);
                 break;
 
             default:
@@ -155,33 +178,8 @@ public class Server : MonoBehaviour, IMessageReceiver
         }
         else
         {
-            Debug.Log("Form upload complete!" + " Result--> " + www.result);
             string response = www.downloadHandler.text;
-            Debug.Log("Server response: " + response);
-
-            //int id;
-            //bool result;
-            //if (bool.TryParse(response, out result))//, out id))
-            //{
-            //    //callback.Invoke((uint)id);
-            //    Debug.Log("SUCCESS: " + result);
-            //
-            //}
-            //else
-            //{
-            //    Debug.LogError("Error: Couldn't parse the server response.");
-            //    Debug.Log("Server response: " + response + " " + result);
-            //    Debug.LogError(www.result);
-            //}
+            Debug.Log("Form " + type + " upload complete!" + " Result--> " + www.result + " Response = " + response);
         }
     }
-
-    public static string StringNormalize(string input)
-    {
-        string normalized = input.Trim();
-        normalized = System.Text.RegularExpressions.Regex.Replace(normalized, @"[^a-zA-Z0-9\s]", "");
-
-        return normalized;
-    }
-
 }

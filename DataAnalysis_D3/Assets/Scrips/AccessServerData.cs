@@ -8,7 +8,7 @@ public class AccessServerData : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(RetrieveData(Server.FormType.DEAD));
+        //StartCoroutine(RetrieveData(Server.FormType.PATH));
     }
 
     // Update is called once per frame
@@ -33,6 +33,10 @@ public class AccessServerData : MonoBehaviour
 
             case Server.FormType.HIT:
                 www = UnityWebRequest.Get("https://citmalumnes.upc.es/~jannl/GetHitData.php");
+                break;
+
+            case Server.FormType.PATH:
+                www = UnityWebRequest.Get("https://citmalumnes.upc.es/~jannl/GetPathData.php");
                 break;
 
             default:

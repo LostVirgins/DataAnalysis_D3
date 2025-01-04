@@ -33,7 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     // Consulta a la base de datos
-    $sql = "INSERT INTO Hit(`x`, `y`, `z`) VALUES ('$px', '$py', '$pz')";
+    $sql = "INSERT INTO PathPos(`x`, `y`, `z`) VALUES ('$px', '$py', '$pz')";
     $result = $conn->query($sql);
 
     //Return to Unity

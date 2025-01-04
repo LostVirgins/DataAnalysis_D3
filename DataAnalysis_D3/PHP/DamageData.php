@@ -13,12 +13,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
-
-    //if (isset($_POST["PlayerID"])) {
-    //    $id = $_POST["PlayerID"];
-    //} else {
-    //    $id = "null";
-    //}
     
     if (isset($_POST["position_X"])) {
         $px = $_POST["position_X"];
