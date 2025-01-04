@@ -40,9 +40,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Consulta a la base de datos
     $sql = "INSERT INTO Death(`x`, `y`, `z`) VALUES ('$px', '$py', '$pz')";
-  //  $sql = "INSERT INTO damaged(`x`, `y`, `z`) VALUES (-25,56607, -25,56607, -25,56607)";
     $result = $conn->query($sql);
 
+    //Return to Unity
     echo $result;
 
     // Cerrar la conexión cuando hayas terminado

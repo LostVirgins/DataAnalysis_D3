@@ -22,7 +22,6 @@ public class Server : MonoBehaviour, IMessageReceiver
     {
         DAMAGED,
         DEAD,
-        RESPAWN,
         HIT,
         PATH
     }
@@ -86,17 +85,6 @@ public class Server : MonoBehaviour, IMessageReceiver
                     OnHitReceived(senderObj.transform.position);
                 }
                 break;
-            case Gamekit3D.Message.MessageType.RESPAWN:
-                if (senderObj.name == "Ellen")
-                {
-                    Debug.Log("Respawned: " + senderObj.transform.position);
-                    OnRespawnReceived(senderObj.transform.position);
-                }
-                else
-                {
-
-                }
-                break;
             default:
                 break;
         }
@@ -105,9 +93,9 @@ public class Server : MonoBehaviour, IMessageReceiver
     private void OnDamageReceived(Vector3 pos)
     {
         WWWForm form = new WWWForm();
-        form.AddField("position_X", pos.x.ToString());
-        form.AddField("position_Y", pos.y.ToString());
-        form.AddField("position_Z", pos.z.ToString());
+        form.AddField("position_X", pos.x.ToString().Replace(",", "."));
+        form.AddField("position_Y", pos.y.ToString().Replace(",", "."));
+        form.AddField("position_Z", pos.z.ToString().Replace(",", "."));
 
         StartCoroutine(Upload(form, FormType.DAMAGED)); 
     }
@@ -115,21 +103,11 @@ public class Server : MonoBehaviour, IMessageReceiver
     private void OnDeadReceived(Vector3 pos)
     {
         WWWForm form = new WWWForm();
-        form.AddField("position_X", pos.x.ToString());
-        form.AddField("position_Y", pos.y.ToString());
-        form.AddField("position_Z", pos.z.ToString());
+        form.AddField("position_X", pos.x.ToString().Replace(",", "."));
+        form.AddField("position_Y", pos.y.ToString().Replace(",", "."));
+        form.AddField("position_Z", pos.z.ToString().Replace(",", "."));
 
         StartCoroutine(Upload(form, FormType.DEAD));
-    }
-
-    private void OnRespawnReceived(Vector3 pos)
-    {
-        WWWForm form = new WWWForm();
-        form.AddField("position_X", pos.x.ToString());
-        form.AddField("position_Y", pos.y.ToString());
-        form.AddField("position_Z", pos.z.ToString());
-
-        StartCoroutine(Upload(form, FormType.RESPAWN));
     }
 
     private void OnHitReceived(Vector3 pos)
@@ -153,10 +131,6 @@ public class Server : MonoBehaviour, IMessageReceiver
 
             case FormType.DEAD:
                 www = UnityWebRequest.Post("https://citmalumnes.upc.es/~jannl/DeadData.php", form);                
-                break;
-
-            case FormType.RESPAWN:
-                www = UnityWebRequest.Post("https://citmalumnes.upc.es/~jannl/RespawnData.php", form);
                 break;
 
             case FormType.HIT:

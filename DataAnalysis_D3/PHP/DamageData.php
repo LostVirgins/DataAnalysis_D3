@@ -42,6 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $sql = "INSERT INTO Damaged(`x`, `y`, `z`) VALUES ('$px', '$py', '$pz')";
     $result = $conn->query($sql);
 
+    //Return to Unity
     echo $result;
 
     // Cerrar la conexión cuando hayas terminado
