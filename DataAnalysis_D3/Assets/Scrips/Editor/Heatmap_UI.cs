@@ -116,7 +116,7 @@ public class Heatmap_UI : Editor
         GUILayout.Label("\nEvent Data File", EditorStyles.boldLabel);
 
         heatmapController.settings.data = (TextAsset)EditorGUILayout.ObjectField(heatmapController.settings.data, typeof(TextAsset), true);
-        heatmapController.settings.pathForReadingData = AssetDatabase.GetAssetPath(heatmapController.settings.data);
+        heatmapController.settings.dataPath = AssetDatabase.GetAssetPath(heatmapController.settings.data);
 
         GUILayout.Label("\nParticle Material", EditorStyles.boldLabel);
         heatmapController.settings.particleMaterial = (Material)EditorGUILayout.ObjectField(heatmapController.settings.particleMaterial, typeof(Material), true);

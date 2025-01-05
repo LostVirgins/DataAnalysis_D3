@@ -11,7 +11,7 @@ public class AccessServerData : MonoBehaviour
     void Start()
     {
         Instance = this;
-        eventWriter = new JsonEventWriter(@"C:\Users\Hekbas\CITM\4A\Data_Analysis\DataAnalysis_D3\DataAnalysis_D3\Assets\Heatmap\ParticleSystem\game_server.txt", true);
+        eventWriter = new JsonEventWriter(HeatmapController.Instance.settings.dataPath, true);
     }
 
     void Update() {}

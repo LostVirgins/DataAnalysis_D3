@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
@@ -6,6 +7,8 @@ using Debug = UnityEngine.Debug;
 
 public class HeatmapController : MonoBehaviour
 {
+    public static HeatmapController Instance;
+
     [Serializable]
     public class Settings
     {
@@ -21,7 +24,7 @@ public class HeatmapController : MonoBehaviour
         public int maxParticleNumber = 50000;
 
         public TextAsset data;
-        public string pathForReadingData;
+        public string dataPath;
     }
     public Settings settings = new();
 
@@ -35,6 +38,7 @@ public class HeatmapController : MonoBehaviour
 
     private void Awake()
     {
+        Instance = this;
         heatmapVisualisation = new HeatmapVisualizer(settings);
     }
 
@@ -43,6 +47,9 @@ public class HeatmapController : MonoBehaviour
     /// </summary>
     public void LoadEvents()
     {
+        if (File.Exists(settings.dataPath))
+            File.WriteAllText(settings.dataPath, "");
+
         StartCoroutine(AccessServerData.Instance.RetrieveData(Server.FormType.PATH));
         StartCoroutine(AccessServerData.Instance.RetrieveData(Server.FormType.ATTACK));
         StartCoroutine(AccessServerData.Instance.RetrieveData(Server.FormType.DAMAGED));
@@ -51,7 +58,7 @@ public class HeatmapController : MonoBehaviour
         Stopwatch stopwatch = new();
         stopwatch.Start();
 
-        eventReader = new JsonEventReader(settings.pathForReadingData);
+        eventReader = new JsonEventReader(settings.dataPath);
 
         if (eventReader.ReaderIsAvailable())
         {
@@ -120,7 +127,7 @@ public class HeatmapController : MonoBehaviour
     /// </summary>
     public bool IsLoadEventsActive()
     {
-        return !string.IsNullOrEmpty(settings.pathForReadingData);
+        return !string.IsNullOrEmpty(settings.dataPath);
     }
 
     /// <summary>
